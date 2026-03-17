@@ -13,6 +13,7 @@ interface BowlProps {
   onPointerDown: () => void;
   onPointerUp: () => void;
   disabled: boolean;
+  tapHint: string;
 }
 
 export default function Bowl({
@@ -24,102 +25,64 @@ export default function Bowl({
   onPointerDown,
   onPointerUp,
   disabled,
+  tapHint,
 }: BowlProps) {
   return (
     <div
       className="relative flex items-center justify-center select-none"
-      style={{ touchAction: 'none' }}
+      style={{ touchAction: 'none', width: '85vw', maxWidth: '400px' }}
       onPointerDown={disabled ? undefined : onPointerDown}
       onPointerUp={disabled ? undefined : onPointerUp}
     >
-      {/* Bowl SVG */}
-      <svg
-        viewBox="0 0 320 200"
-        className="w-72 h-48 sm:w-80 sm:h-52"
-        style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.6))' }}
-      >
-        <defs>
-          {/* Outer bowl gradient */}
-          <radialGradient id="outerBowl" cx="50%" cy="40%" r="60%">
-            <stop offset="0%" stopColor="#3a1a00" />
-            <stop offset="100%" stopColor={bowlOuter} />
-          </radialGradient>
-          {/* Inner bowl gradient */}
-          <radialGradient id="innerBowl" cx="50%" cy="45%" r="60%">
-            <stop offset="0%" stopColor="#d04020" />
-            <stop offset="40%" stopColor={bowlInner} />
-            <stop offset="100%" stopColor="#500000" />
-          </radialGradient>
-          {/* Rim highlight */}
-          <linearGradient id="rimGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#8b6914" stopOpacity="0.8" />
-            <stop offset="50%" stopColor="#c9a227" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#6b4c0e" stopOpacity="0.4" />
-          </linearGradient>
-          <clipPath id="bowlClip">
-            <ellipse cx="160" cy="115" rx="130" ry="95" />
-          </clipPath>
-        </defs>
-
-        {/* Outer bowl body */}
-        <ellipse cx="160" cy="120" rx="148" ry="78" fill="url(#outerBowl)" />
-
-        {/* Inner bowl */}
-        <ellipse cx="160" cy="115" rx="130" ry="65" fill="url(#innerBowl)" />
-
-        {/* Inner bowl sheen */}
-        <ellipse
-          cx="140"
-          cy="95"
-          rx="55"
-          ry="22"
-          fill="white"
-          fillOpacity="0.07"
-          transform="rotate(-10, 140, 95)"
-        />
-
-        {/* Rim */}
-        <ellipse
-          cx="160"
-          cy="50"
-          rx="148"
-          ry="36"
-          fill="url(#rimGrad)"
-        />
-        {/* Rim top edge highlight */}
-        <ellipse
-          cx="160"
-          cy="48"
-          rx="140"
-          ry="28"
-          fill="none"
-          stroke="#c9a227"
-          strokeWidth="2"
-          strokeOpacity="0.5"
-        />
-        {/* Rim inner shadow */}
-        <ellipse
-          cx="160"
-          cy="55"
-          rx="130"
-          ry="24"
-          fill={bowlInner}
-          fillOpacity="0.6"
-        />
-      </svg>
-
-      {/* Dice inside the bowl */}
+      {/* Top-down bowl: outer ring */}
       <div
-        className="absolute flex items-center justify-center"
-        style={{ top: '50%', left: '50%', transform: 'translate(-50%, -42%)' }}
+        className="relative flex items-center justify-center rounded-full"
+        style={{
+          width: '100%',
+          paddingBottom: '100%',
+          backgroundColor: bowlOuter,
+          boxShadow: '0 12px 40px rgba(0,0,0,0.7), inset 0 2px 8px rgba(255,255,255,0.08)',
+        }}
       >
-        <DiceSet dice={dice} isRolling={isRolling} isHolding={isHolding} />
+        {/* Inner bowl circle with radial gradient */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            top: '7%',
+            left: '7%',
+            right: '7%',
+            bottom: '7%',
+            background: `radial-gradient(circle at 40% 40%, #e8392a 0%, ${bowlInner} 55%, #500000 100%)`,
+            boxShadow: 'inset 0 4px 20px rgba(0,0,0,0.5)',
+          }}
+        >
+          {/* Gloss highlight */}
+          <div
+            className="absolute rounded-full"
+            style={{
+              top: '10%',
+              left: '12%',
+              width: '32%',
+              height: '18%',
+              background: 'rgba(255,255,255,0.15)',
+              transform: 'rotate(-20deg)',
+              filter: 'blur(3px)',
+            }}
+          />
+
+          {/* Dice inside the bowl */}
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <DiceSet dice={dice} isRolling={isRolling} isHolding={isHolding} />
+          </div>
+        </div>
       </div>
 
-      {/* Tap hint when not rolling and turn not over */}
+      {/* Tap hint */}
       {!isRolling && !isHolding && !disabled && (
-        <div className="absolute bottom-2 left-0 right-0 flex justify-center pointer-events-none">
-          <span className="text-white/40 text-xs">タップして振る</span>
+        <div className="absolute -bottom-7 left-0 right-0 flex justify-center pointer-events-none">
+          <span className="text-current opacity-40 text-sm">{tapHint}</span>
         </div>
       )}
     </div>

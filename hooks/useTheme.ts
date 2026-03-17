@@ -1,19 +1,18 @@
 'use client';
 
-import { useState, useCallback } from 'react';
 import { ThemeType, ThemeConfig } from '@/types';
 
-const THEMES: Record<ThemeType, ThemeConfig> = {
+export const THEME_CONFIGS: Record<ThemeType, ThemeConfig> = {
   japanese: {
     name: '和風',
-    bgClass: 'bg-stone-900',
+    bgClass: 'bg-tatami',
     bowlOuter: '#1a0a00',
     bowlInner: '#8b0000',
-    textClass: 'text-amber-100',
-    accentClass: 'text-amber-400',
-    overlayClass: 'bg-stone-950/70 text-amber-200',
+    textClass: 'text-stone-900',
+    accentClass: 'text-red-800',
+    overlayClass: 'bg-stone-950/60 text-amber-100',
     indicatorActive: '#ef4444',
-    indicatorInactive: '#3b82f6',
+    indicatorInactive: '#78350f',
   },
   casino: {
     name: 'カジノ',
@@ -39,22 +38,9 @@ const THEMES: Record<ThemeType, ThemeConfig> = {
   },
 };
 
-const THEME_ORDER: ThemeType[] = ['japanese', 'casino', 'modern'];
-
-export function useTheme() {
-  const [currentTheme, setCurrentTheme] = useState<ThemeType>('japanese');
-
-  const cycleTheme = useCallback(() => {
-    setCurrentTheme((prev) => {
-      const idx = THEME_ORDER.indexOf(prev);
-      return THEME_ORDER[(idx + 1) % THEME_ORDER.length];
-    });
-  }, []);
-
+export function useTheme(theme: ThemeType = 'japanese') {
   return {
-    theme: currentTheme,
-    config: THEMES[currentTheme],
-    cycleTheme,
-    themes: THEMES,
+    config: THEME_CONFIGS[theme],
+    themes: THEME_CONFIGS,
   };
 }

@@ -19,3 +19,38 @@ html {
   height: 100%;
   overflow: hidden;
 }
+
+/* Tatami texture for Japanese theme */
+.bg-tatami {
+  background-color: #7a9e7a;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 6px,
+      rgba(0, 0, 0, 0.06) 6px,
+      rgba(0, 0, 0, 0.06) 7px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 6px,
+      rgba(0, 0, 0, 0.04) 6px,
+      rgba(0, 0, 0, 0.04) 7px
+    ),
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.04) 0px,
+      rgba(255, 255, 255, 0.04) 3px,
+      transparent 3px,
+      transparent 9px
+    ),
+    linear-gradient(
+      160deg,
+      #8fbc8f 0%,
+      #7aaa7a 30%,
+      #6b9b6b 60%,
+      #5e8a5e 100%
+    );
+}
+

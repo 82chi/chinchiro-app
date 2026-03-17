@@ -17,6 +17,10 @@ export interface RoleResult {
 
 export type ThemeType = 'japanese' | 'casino' | 'modern';
 
+export type LocaleType = 'ja' | 'en';
+
+export type AnimDuration = 1 | 2 | 3 | 5;
+
 export interface ThemeConfig {
   name: string;
   bgClass: string;
