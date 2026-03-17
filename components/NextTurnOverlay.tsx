@@ -8,6 +8,7 @@ interface NextTurnOverlayProps {
   onTap: () => void;
   nextTurnText: string;
   tapToContinueText: string;
+  roleLabel?: string;
 }
 
 export default function NextTurnOverlay({
@@ -15,6 +16,7 @@ export default function NextTurnOverlay({
   onTap,
   nextTurnText,
   tapToContinueText,
+  roleLabel,
 }: NextTurnOverlayProps) {
   return (
     <motion.div
@@ -32,6 +34,9 @@ export default function NextTurnOverlay({
         transition={{ delay: 1.1, type: 'spring', stiffness: 200, damping: 20 }}
         className="text-center"
       >
+        {roleLabel && (
+          <p className="text-5xl font-black mb-4">{roleLabel}</p>
+        )}
         <p className="text-4xl font-bold">{nextTurnText}</p>
         <p className="text-base mt-3 opacity-70">{tapToContinueText}</p>
       </motion.div>
