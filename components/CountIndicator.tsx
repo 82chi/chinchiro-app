@@ -14,12 +14,14 @@ export default function CountIndicator({
   inactiveColor,
 }: CountIndicatorProps) {
   return (
-    <div className="flex items-center justify-center gap-4 py-4">
+    <div className="flex items-center justify-center gap-6 py-5">
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="w-6 h-6 rounded-full border-2 transition-colors duration-300"
+          className="rounded-full border-[3px] transition-colors duration-300"
           style={{
+            width: '38px',
+            height: '38px',
             backgroundColor: i < rollCount ? activeColor : 'transparent',
             borderColor: i < rollCount ? activeColor : inactiveColor,
           }}
