@@ -18,18 +18,18 @@ export default function NextTurnOverlay({
 }: NextTurnOverlayProps) {
   return (
     <motion.div
-      className={`fixed bottom-0 left-0 right-0 flex items-center justify-center z-50 cursor-pointer select-none py-8 ${overlayClass}`}
+      className={`fixed bottom-0 left-0 right-0 flex items-center justify-center z-50 cursor-pointer select-none py-14 ${overlayClass}`}
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 30 }}
-      transition={{ delay: 2.5, duration: 0.6, ease: 'easeOut' }}
+      exit={{ opacity: 0, y: 30, transition: { duration: 0.2, ease: 'easeIn' } }}
+      transition={{ delay: 1.0, duration: 0.4, ease: 'easeOut' }}
       onPointerDown={onTap}
       style={{ willChange: 'opacity, transform' }}
     >
       <motion.div
         initial={{ scale: 0.85, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 2.7, type: 'spring', stiffness: 200, damping: 20 }}
+        transition={{ delay: 1.1, type: 'spring', stiffness: 200, damping: 20 }}
         className="text-center"
       >
         <p className="text-3xl font-bold">{nextTurnText}</p>
