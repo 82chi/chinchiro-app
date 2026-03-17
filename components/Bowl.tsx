@@ -30,7 +30,7 @@ export default function Bowl({
   return (
     <div
       className="relative flex items-center justify-center select-none"
-      style={{ touchAction: 'none', width: '85vw', maxWidth: '400px' }}
+      style={{ touchAction: 'none', width: '92vw', maxWidth: '480px' }}
       onPointerDown={disabled ? undefined : onPointerDown}
       onPointerUp={disabled ? undefined : onPointerUp}
     >
