@@ -69,13 +69,13 @@ export default function RulesModal({ locale, textClass, accentClass }: RulesModa
                 {tr.rules.roles.map((role) => (
                   <div
                     key={role.name}
-                    className="flex gap-3 items-start rounded-lg p-2 bg-white/5"
+                    className="rounded-lg p-3 bg-white/5"
                   >
-                    <div className="shrink-0 text-right w-24">
-                      <span className={`font-bold text-sm ${accentClass}`}>{role.name}</span>
-                      <div className="text-white/40 text-xs">{role.dice}</div>
+                    <div className="flex items-baseline gap-2 mb-1">
+                      <span className={`font-bold text-base ${accentClass}`}>{role.name}</span>
+                      <span className="text-white/40 text-xs">{role.dice}</span>
                     </div>
-                    <div className={`text-sm ${textClass} text-white/80`}>{role.desc}</div>
+                    <div className={`text-sm ${textClass} text-white/70 leading-snug`}>{role.desc}</div>
                   </div>
                 ))}
               </div>
