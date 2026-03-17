@@ -11,8 +11,9 @@ export const THEME_CONFIGS: Record<ThemeType, ThemeConfig> = {
     textClass: 'text-stone-900',
     accentClass: 'text-red-800',
     overlayClass: 'bg-stone-950/60 text-amber-100',
-    indicatorActive: '#ef4444',
-    indicatorInactive: '#78350f',
+    // 和風: 落ち着いた抹茶グリーン（active）× 枯草色（inactive）
+    indicatorActive: '#6b8f5e',
+    indicatorInactive: '#b5a07a',
   },
   casino: {
     name: 'カジノ',
@@ -22,8 +23,9 @@ export const THEME_CONFIGS: Record<ThemeType, ThemeConfig> = {
     textClass: 'text-yellow-100',
     accentClass: 'text-yellow-400',
     overlayClass: 'bg-emerald-950/70 text-yellow-200',
-    indicatorActive: '#ef4444',
-    indicatorInactive: '#3b82f6',
+    // カジノ: ソフトなゴールド（active）× ダークグリーン（inactive）
+    indicatorActive: '#c9a84c',
+    indicatorInactive: '#3d6b4f',
   },
   modern: {
     name: 'モダン',
@@ -33,8 +35,9 @@ export const THEME_CONFIGS: Record<ThemeType, ThemeConfig> = {
     textClass: 'text-gray-900',
     accentClass: 'text-gray-700',
     overlayClass: 'bg-white/70 text-gray-800',
-    indicatorActive: '#ef4444',
-    indicatorInactive: '#3b82f6',
+    // モダン: スレートブルー（active）× ライトグレー（inactive）
+    indicatorActive: '#5b8fa8',
+    indicatorInactive: '#9ca3af',
   },
 };
 
