@@ -3,15 +3,20 @@
 import { AnimatePresence } from 'framer-motion';
 import { useGame } from '@/hooks/useGame';
 import { useTheme } from '@/hooks/useTheme';
+import { useSettings } from '@/hooks/useSettings';
 import Bowl from '@/components/Bowl';
 import CountIndicator from '@/components/CountIndicator';
 import RoleDisplay from '@/components/RoleDisplay';
 import NextTurnOverlay from '@/components/NextTurnOverlay';
-import ThemeSwitcher from '@/components/ThemeSwitcher';
+import RulesModal from '@/components/RulesModal';
+import SettingsPanel from '@/components/SettingsPanel';
+import { t } from '@/lib/i18n';
 
 export default function Home() {
-  const { state, startHolding, stopHolding, nextTurn } = useGame();
-  const { theme, config, cycleTheme } = useTheme();
+  const { settings, setTheme, setLocale, setAnimDuration } = useSettings();
+  const { state, startHolding, stopHolding, nextTurn } = useGame(settings.animDuration);
+  const { config } = useTheme(settings.theme);
+  const tr = t(settings.locale);
 
   const isAnimating = state.isRolling || state.isHolding;
 
@@ -20,17 +25,22 @@ export default function Home() {
       className={`relative flex flex-col min-h-screen ${config.bgClass} ${config.textClass} transition-colors duration-500`}
     >
       {/* Header */}
-      <div className="relative flex items-center justify-center pt-4 px-4">
-        <h1 className={`text-xl font-bold tracking-widest ${config.accentClass}`}>
-          チンチロ
-        </h1>
-        <div className="absolute right-4 top-3">
-          <ThemeSwitcher
-            theme={theme}
-            onCycle={cycleTheme}
-            disabled={isAnimating}
-          />
-        </div>
+      <div className="relative flex items-center justify-between pt-4 px-4">
+        <RulesModal
+          locale={settings.locale}
+          textClass={config.textClass}
+          accentClass={config.accentClass}
+        />
+        <div />
+        <SettingsPanel
+          theme={settings.theme}
+          locale={settings.locale}
+          animDuration={settings.animDuration}
+          onThemeChange={setTheme}
+          onLocaleChange={setLocale}
+          onAnimDurationChange={setAnimDuration}
+          disabled={isAnimating}
+        />
       </div>
 
       {/* Count indicator */}
@@ -40,8 +50,8 @@ export default function Home() {
         inactiveColor={config.indicatorInactive}
       />
 
-      {/* Bowl area */}
-      <div className="flex-1 flex flex-col items-center justify-center gap-6 pb-8">
+      {/* Bowl area — centered, slightly above midpoint */}
+      <div className="flex-1 flex flex-col items-center justify-center gap-8 pb-16">
         <Bowl
           dice={state.dice}
           isRolling={state.isRolling}
@@ -51,6 +61,7 @@ export default function Home() {
           onPointerDown={startHolding}
           onPointerUp={stopHolding}
           disabled={state.isTurnOver || state.rollCount >= 3}
+          tapHint={tr.ui.tapToRoll}
         />
 
         {/* Role display */}
@@ -58,6 +69,7 @@ export default function Home() {
           result={state.roleResult}
           accentClass={config.accentClass}
           textClass={config.textClass}
+          roleNames={tr.roles}
         />
       </div>
 
@@ -67,6 +79,8 @@ export default function Home() {
           <NextTurnOverlay
             overlayClass={config.overlayClass}
             onTap={nextTurn}
+            nextTurnText={tr.ui.nextTurn}
+            tapToContinueText={tr.ui.tapToContinue}
           />
         )}
       </AnimatePresence>

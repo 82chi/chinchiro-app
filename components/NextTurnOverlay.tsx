@@ -6,27 +6,34 @@ import { motion } from 'framer-motion';
 interface NextTurnOverlayProps {
   overlayClass: string;
   onTap: () => void;
+  nextTurnText: string;
+  tapToContinueText: string;
 }
 
-export default function NextTurnOverlay({ overlayClass, onTap }: NextTurnOverlayProps) {
+export default function NextTurnOverlay({
+  overlayClass,
+  onTap,
+  nextTurnText,
+  tapToContinueText,
+}: NextTurnOverlayProps) {
   return (
     <motion.div
-      className={`fixed inset-0 flex items-center justify-center z-50 ${overlayClass} cursor-pointer select-none`}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
+      className={`fixed bottom-0 left-0 right-0 flex items-center justify-center z-50 cursor-pointer select-none py-8 ${overlayClass}`}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 30 }}
+      transition={{ delay: 2.5, duration: 0.6, ease: 'easeOut' }}
       onPointerDown={onTap}
-      style={{ willChange: 'opacity' }}
+      style={{ willChange: 'opacity, transform' }}
     >
       <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
+        initial={{ scale: 0.85, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 20 }}
+        transition={{ delay: 2.7, type: 'spring', stiffness: 200, damping: 20 }}
         className="text-center"
       >
-        <p className="text-2xl font-bold">次の人へ</p>
-        <p className="text-sm mt-2 opacity-70">タップして続ける</p>
+        <p className="text-3xl font-bold">{nextTurnText}</p>
+        <p className="text-sm mt-2 opacity-70">{tapToContinueText}</p>
       </motion.div>
     </motion.div>
   );

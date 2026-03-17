@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { DiceValue } from '@/types';
-import { motion } from 'framer-motion';
+import { motion, useAnimationControls } from 'framer-motion';
 
 interface DiceProps {
   value: DiceValue;
@@ -45,49 +45,70 @@ const DOT_POSITIONS: Record<DiceValue, { cx: number; cy: number; red?: boolean }
   ],
 };
 
+function randomRange(min: number, max: number) {
+  return Math.random() * (max - min) + min;
+}
+
 export default function Dice({ value, isRolling, isHolding, index }: DiceProps) {
   const dots = DOT_POSITIONS[value];
+  const controls = useAnimationControls();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (isHolding || isRolling) {
+      // Continuously animate to random positions while shaking
+      const animate = () => {
+        controls.start({
+          x: randomRange(-18, 18),
+          y: randomRange(-18, 18),
+          rotate: randomRange(-30, 30),
+          transition: { duration: 0.12 + index * 0.03, ease: 'easeInOut' },
+        });
+        timeoutRef.current = setTimeout(animate, 130 + index * 20);
+      };
+      animate();
+    } else {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      controls.start({ x: 0, y: 0, rotate: 0, transition: { duration: 0.25 } });
+    }
+
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [isHolding, isRolling, controls, index]);
 
   return (
     <motion.div
-      className="relative"
+      animate={controls}
       style={{ willChange: 'transform' }}
-      animate={
-        isRolling || isHolding
-          ? {
-              rotate: [0, -15 + index * 10, 20 - index * 5, -10, 5, 0],
-              x: [0, -4 + index * 3, 6 - index * 2, -3, 2, 0],
-              y: [0, 3 - index * 2, -4 + index, 2, -1, 0],
-            }
-          : { rotate: 0, x: 0, y: 0 }
-      }
-      transition={
-        isRolling || isHolding
-          ? {
-              duration: 0.4,
-              repeat: isHolding ? Infinity : 0,
-              ease: 'easeInOut',
-            }
-          : { duration: 0.2 }
-      }
     >
       <svg
-        width="64"
-        height="64"
+        width="80"
+        height="80"
         viewBox="0 0 100 100"
-        className="drop-shadow-md"
+        style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.4))' }}
       >
         {/* Dice body */}
         <rect
-          x="5"
-          y="5"
-          width="90"
-          height="90"
-          rx="12"
-          ry="12"
+          x="4"
+          y="4"
+          width="92"
+          height="92"
+          rx="14"
+          ry="14"
           fill="white"
           stroke="#d1d5db"
           strokeWidth="2"
+        />
+        {/* Top-left highlight */}
+        <rect
+          x="4"
+          y="4"
+          width="92"
+          height="40"
+          rx="14"
+          ry="14"
+          fill="rgba(255,255,255,0.5)"
         />
         {/* Dots */}
         {dots.map((dot, i) => (

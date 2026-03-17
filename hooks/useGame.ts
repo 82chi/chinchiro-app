@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { DiceValue, GameState } from '@/types';
+import { DiceValue, GameState, AnimDuration } from '@/types';
 import { evaluateRole, rollAllDice, isTurnEndingRole } from '@/lib/chinchiro';
 
 const INITIAL_DICE: [DiceValue, DiceValue, DiceValue] = [1, 1, 1];
@@ -15,13 +15,17 @@ const INITIAL_STATE: GameState = {
   isTurnOver: false,
 };
 
-export function useGame() {
+const TICK_INTERVAL_MS = 80;
+
+export function useGame(animDuration: AnimDuration = 2) {
   const [state, setState] = useState<GameState>(INITIAL_STATE);
   const animationRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const stateRef = useRef<GameState>(INITIAL_STATE);
+  const animDurationRef = useRef<AnimDuration>(animDuration);
 
-  // Keep stateRef in sync so callbacks always have fresh state
+  // Keep refs in sync
   stateRef.current = state;
+  animDurationRef.current = animDuration;
 
   // Cleanup interval on unmount
   useEffect(() => {
@@ -42,7 +46,7 @@ export function useGame() {
     setState((prev) => ({ ...prev, isHolding: false, isRolling: true }));
 
     let ticks = 0;
-    const maxTicks = 8;
+    const maxTicks = Math.round((animDurationRef.current * 1000) / TICK_INTERVAL_MS);
 
     if (animationRef.current) clearInterval(animationRef.current);
     animationRef.current = setInterval(() => {
@@ -66,7 +70,7 @@ export function useGame() {
           };
         });
       }
-    }, 80);
+    }, TICK_INTERVAL_MS);
   }, []);
 
   const nextTurn = useCallback(() => {
