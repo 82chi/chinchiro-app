@@ -9,6 +9,8 @@ interface DiceProps {
   isRolling: boolean;
   isHolding: boolean;
   index: number;
+  posX: number;
+  posY: number;
 }
 
 const DOT_POSITIONS: Record<DiceValue, { cx: number; cy: number; red?: boolean }[]> = {
@@ -45,42 +47,46 @@ const DOT_POSITIONS: Record<DiceValue, { cx: number; cy: number; red?: boolean }
   ],
 };
 
-function randomRange(min: number, max: number) {
-  return Math.random() * (max - min) + min;
-}
+const BASE_ROTATION_SPEED = 4;
+const ROTATION_SPEED_INCREMENT = 1.5;
 
-export default function Dice({ value, isRolling, isHolding, index }: DiceProps) {
+export default function Dice({ value, isRolling, isHolding, index, posX, posY }: DiceProps) {
   const dots = DOT_POSITIONS[value];
   const controls = useAnimationControls();
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rotateRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
 
+  // Self-managed rotation for rolling feel
   useEffect(() => {
-    if (isHolding || isRolling) {
-      // Continuously animate to random positions while shaking
-      const animate = () => {
-        controls.start({
-          x: randomRange(-18, 18),
-          y: randomRange(-18, 18),
-          rotate: randomRange(-30, 30),
-          transition: { duration: 0.12 + index * 0.03, ease: 'easeInOut' },
-        });
-        timeoutRef.current = setTimeout(animate, 130 + index * 20);
+    const isActive = isHolding || isRolling;
+
+    if (isActive) {
+      // Spin at a per-dice speed to look independent
+      const speed = BASE_ROTATION_SPEED + index * ROTATION_SPEED_INCREMENT;
+      const spin = () => {
+        rotateRef.current += speed;
+        controls.set({ rotate: rotateRef.current });
+        rafRef.current = requestAnimationFrame(spin);
       };
-      animate();
+      rafRef.current = requestAnimationFrame(spin);
     } else {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      controls.start({ x: 0, y: 0, rotate: 0, transition: { duration: 0.25 } });
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      controls.start({ rotate: 0, transition: { duration: 0.4, ease: 'easeOut' } });
     }
 
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [isHolding, isRolling, controls, index]);
 
   return (
     <motion.div
       animate={controls}
-      style={{ willChange: 'transform' }}
+      style={{
+        x: posX,
+        y: posY,
+        willChange: 'transform',
+      }}
     >
       <svg
         width="80"
