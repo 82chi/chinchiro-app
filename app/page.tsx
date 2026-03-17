@@ -83,6 +83,7 @@ export default function Home() {
             onTap={nextTurn}
             nextTurnText={tr.ui.nextTurn}
             tapToContinueText={tr.ui.tapToContinue}
+            roleLabel={state.roleResult ? state.roleResult.label : undefined}
           />
         )}
       </AnimatePresence>
