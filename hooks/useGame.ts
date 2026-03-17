@@ -15,10 +15,11 @@ const INITIAL_STATE: GameState = {
   isTurnOver: false,
 };
 
-export function useGame() {
+export function useGame(minHoldMs: number = 2000) {
   const [state, setState] = useState<GameState>(INITIAL_STATE);
   const animationRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const stateRef = useRef<GameState>(INITIAL_STATE);
+  const holdStartRef = useRef<number>(0);
 
   // Keep stateRef in sync so callbacks always have fresh state
   stateRef.current = state;
@@ -33,41 +34,53 @@ export function useGame() {
   const startHolding = useCallback(() => {
     const s = stateRef.current;
     if (s.isTurnOver || s.rollCount >= 3 || s.isRolling) return;
+    holdStartRef.current = Date.now();
     setState((prev) => ({ ...prev, isHolding: true }));
   }, []);
 
   const stopHolding = useCallback(() => {
     if (!stateRef.current.isHolding) return;
 
-    setState((prev) => ({ ...prev, isHolding: false, isRolling: true }));
+    const elapsed = Date.now() - holdStartRef.current;
+    const remaining = Math.max(0, minHoldMs - elapsed);
 
-    let ticks = 0;
-    const maxTicks = 8;
+    const doRoll = () => {
+      setState((prev) => ({ ...prev, isHolding: false, isRolling: true }));
 
-    if (animationRef.current) clearInterval(animationRef.current);
-    animationRef.current = setInterval(() => {
-      ticks++;
-      if (ticks < maxTicks) {
-        setState((prev) => ({ ...prev, dice: rollAllDice() }));
-      } else {
-        if (animationRef.current) clearInterval(animationRef.current);
-        const finalDice = rollAllDice();
-        const result = evaluateRole(finalDice);
-        setState((prev) => {
-          const newRollCount = prev.rollCount + 1;
-          const turnOver = newRollCount >= 3 || isTurnEndingRole(result);
-          return {
-            ...prev,
-            dice: finalDice,
-            rollCount: newRollCount,
-            isRolling: false,
-            roleResult: result,
-            isTurnOver: turnOver,
-          };
-        });
-      }
-    }, 80);
-  }, []);
+      let ticks = 0;
+      const maxTicks = 8;
+
+      if (animationRef.current) clearInterval(animationRef.current);
+      animationRef.current = setInterval(() => {
+        ticks++;
+        if (ticks < maxTicks) {
+          setState((prev) => ({ ...prev, dice: rollAllDice() }));
+        } else {
+          if (animationRef.current) clearInterval(animationRef.current);
+          const finalDice = rollAllDice();
+          const result = evaluateRole(finalDice);
+          setState((prev) => {
+            const newRollCount = prev.rollCount + 1;
+            const turnOver = newRollCount >= 3 || isTurnEndingRole(result);
+            return {
+              ...prev,
+              dice: finalDice,
+              rollCount: newRollCount,
+              isRolling: false,
+              roleResult: result,
+              isTurnOver: turnOver,
+            };
+          });
+        }
+      }, 80);
+    };
+
+    if (remaining > 0) {
+      setTimeout(doRoll, remaining);
+    } else {
+      doRoll();
+    }
+  }, [minHoldMs]);
 
   const nextTurn = useCallback(() => {
     if (!stateRef.current.isTurnOver) return;

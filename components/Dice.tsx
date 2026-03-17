@@ -7,45 +7,60 @@ import { motion } from 'framer-motion';
 interface DiceProps {
   value: DiceValue;
   isRolling: boolean;
+  /** Whether bowl is being held (random shake handled by DiceSet) */
   isHolding: boolean;
   index: number;
+  /** Random offset X for shake animation */
+  shakeX?: number;
+  /** Random offset Y for shake animation */
+  shakeY?: number;
+  /** Random rotation for shake animation */
+  shakeRotate?: number;
 }
 
 const DOT_POSITIONS: Record<DiceValue, { cx: number; cy: number; red?: boolean }[]> = {
   1: [{ cx: 50, cy: 50, red: true }],
   2: [
-    { cx: 25, cy: 25 },
-    { cx: 75, cy: 75 },
+    { cx: 28, cy: 28 },
+    { cx: 72, cy: 72 },
   ],
   3: [
-    { cx: 25, cy: 25 },
+    { cx: 28, cy: 28 },
     { cx: 50, cy: 50 },
-    { cx: 75, cy: 75 },
+    { cx: 72, cy: 72 },
   ],
   4: [
-    { cx: 25, cy: 25 },
-    { cx: 75, cy: 25 },
-    { cx: 25, cy: 75 },
-    { cx: 75, cy: 75 },
+    { cx: 28, cy: 28 },
+    { cx: 72, cy: 28 },
+    { cx: 28, cy: 72 },
+    { cx: 72, cy: 72 },
   ],
   5: [
-    { cx: 25, cy: 25 },
-    { cx: 75, cy: 25 },
+    { cx: 28, cy: 28 },
+    { cx: 72, cy: 28 },
     { cx: 50, cy: 50 },
-    { cx: 25, cy: 75 },
-    { cx: 75, cy: 75 },
+    { cx: 28, cy: 72 },
+    { cx: 72, cy: 72 },
   ],
   6: [
-    { cx: 25, cy: 20 },
-    { cx: 75, cy: 20 },
-    { cx: 25, cy: 50 },
-    { cx: 75, cy: 50 },
-    { cx: 25, cy: 80 },
-    { cx: 75, cy: 80 },
+    { cx: 28, cy: 22 },
+    { cx: 72, cy: 22 },
+    { cx: 28, cy: 50 },
+    { cx: 72, cy: 50 },
+    { cx: 28, cy: 78 },
+    { cx: 72, cy: 78 },
   ],
 };
 
-export default function Dice({ value, isRolling, isHolding, index }: DiceProps) {
+export default function Dice({
+  value,
+  isRolling,
+  isHolding,
+  index,
+  shakeX = 0,
+  shakeY = 0,
+  shakeRotate = 0,
+}: DiceProps) {
   const dots = DOT_POSITIONS[value];
 
   return (
@@ -53,7 +68,9 @@ export default function Dice({ value, isRolling, isHolding, index }: DiceProps) 
       className="relative"
       style={{ willChange: 'transform' }}
       animate={
-        isRolling || isHolding
+        isHolding
+          ? { x: shakeX, y: shakeY, rotate: shakeRotate }
+          : isRolling
           ? {
               rotate: [0, -15 + index * 10, 20 - index * 5, -10, 5, 0],
               x: [0, -4 + index * 3, 6 - index * 2, -3, 2, 0],
@@ -62,33 +79,33 @@ export default function Dice({ value, isRolling, isHolding, index }: DiceProps) 
           : { rotate: 0, x: 0, y: 0 }
       }
       transition={
-        isRolling || isHolding
-          ? {
-              duration: 0.4,
-              repeat: isHolding ? Infinity : 0,
-              ease: 'easeInOut',
-            }
+        isHolding
+          ? { duration: 0.3, ease: 'easeInOut' }
+          : isRolling
+          ? { duration: 0.4, repeat: 0, ease: 'easeInOut' }
           : { duration: 0.2 }
       }
     >
       <svg
-        width="64"
-        height="64"
+        width="80"
+        height="80"
         viewBox="0 0 100 100"
-        className="drop-shadow-md"
+        style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))' }}
       >
         {/* Dice body */}
         <rect
-          x="5"
-          y="5"
-          width="90"
-          height="90"
-          rx="12"
-          ry="12"
+          x="4"
+          y="4"
+          width="92"
+          height="92"
+          rx="14"
+          ry="14"
           fill="white"
           stroke="#d1d5db"
           strokeWidth="2"
         />
+        {/* Light gloss on top-left */}
+        <ellipse cx="28" cy="20" rx="18" ry="8" fill="rgba(255,255,255,0.5)" />
         {/* Dots */}
         {dots.map((dot, i) => (
           <circle
