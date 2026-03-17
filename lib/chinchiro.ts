@@ -24,11 +24,11 @@ export function evaluateRole(dice: [DiceValue, DiceValue, DiceValue]): RoleResul
     return { type: 'arashi', label: `${a}アラシ`, arashiValue: a };
   }
 
-  // 目あり: 2つ同じ目 + 残り1が1以外
-  if (a === b && c !== 1) {
+  // 目あり: 2つ同じ目 + 残り1つ（1〜6すべてOK）
+  if (a === b) {
     return { type: 'me-ari', label: `${c}`, meValue: c };
   }
-  if (b === c && a !== 1) {
+  if (b === c) {
     return { type: 'me-ari', label: `${a}`, meValue: a };
   }
 
