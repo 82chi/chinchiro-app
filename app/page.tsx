@@ -48,6 +48,8 @@ export default function Home() {
         rollCount={state.rollCount}
         activeColor={config.indicatorActive}
         inactiveColor={config.indicatorInactive}
+        roleType={state.roleResult?.type ?? null}
+        isTurnOver={state.isTurnOver}
       />
 
       {/* Bowl area — centered, slightly above midpoint */}
