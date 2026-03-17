@@ -10,22 +10,39 @@ interface DiceSetProps {
   isHolding: boolean;
 }
 
-// Initial resting positions (relative to bowl center, in px)
-const INITIAL_POSITIONS = [
-  { x: -55, y: 0 },
-  { x: 0, y: 0 },
-  { x: 55, y: 0 },
+// 10 preset resting layouts — all guaranteed non-overlapping (dice are 80px wide)
+// Coordinates are relative to bowl center (px). Min separation ~90px.
+const REST_LAYOUTS: Array<[{ x: number; y: number }, { x: number; y: number }, { x: number; y: number }]> = [
+  // Row: left / center / right
+  [{ x: -88, y: 0 }, { x: 0, y: 0 }, { x: 88, y: 0 }],
+  // Triangle: top / bottom-left / bottom-right
+  [{ x: 0, y: -55 }, { x: -55, y: 40 }, { x: 55, y: 40 }],
+  // Inverted triangle
+  [{ x: 0, y: 55 }, { x: -55, y: -40 }, { x: 55, y: -40 }],
+  // Diagonal top-left to bottom-right
+  [{ x: -80, y: -40 }, { x: 0, y: 0 }, { x: 80, y: 40 }],
+  // Diagonal top-right to bottom-left
+  [{ x: 80, y: -40 }, { x: 0, y: 0 }, { x: -80, y: 40 }],
+  // L-shape
+  [{ x: -80, y: -35 }, { x: -80, y: 55 }, { x: 10, y: 55 }],
+  // Spread wide
+  [{ x: -90, y: -20 }, { x: 0, y: 50 }, { x: 90, y: -20 }],
+  // Column (vertical)
+  [{ x: 0, y: -88 }, { x: 0, y: 0 }, { x: 0, y: 88 }],
+  // Cluster upper-left
+  [{ x: -60, y: -55 }, { x: 30, y: -55 }, { x: -15, y: 35 }],
+  // Cluster lower-right
+  [{ x: 60, y: 55 }, { x: -30, y: 55 }, { x: 15, y: -35 }],
 ];
 
-// Effective radius for dice centers inside the bowl
-// Bowl inner circle is ~86% of outer; usable radius ~40% of outer (400px max → ~160px),
-// minus half dice size (40px) = ~120px
+function pickRestLayout() {
+  return REST_LAYOUTS[Math.floor(Math.random() * REST_LAYOUTS.length)];
+}
+
 const BOWL_RADIUS = 110;
-const MAX_SPEED = 9;
-// How often (in frames) a random impulse is applied to each dice
-const IMPULSE_INTERVAL = 18;
-// Frame offset between dice so impulses are staggered
-const IMPULSE_STAGGER = 6;
+const MAX_SPEED = 22;          // 2.5× faster than before (was 9)
+const IMPULSE_INTERVAL = 10;   // more frequent impulses (was 18)
+const IMPULSE_STAGGER = 3;
 
 interface PhysicsState {
   x: number;
@@ -35,10 +52,14 @@ interface PhysicsState {
 }
 
 export default function DiceSet({ dice, isRolling, isHolding }: DiceSetProps) {
+  const restLayoutRef = useRef(pickRestLayout());
+
   const physicsRef = useRef<PhysicsState[]>(
-    INITIAL_POSITIONS.map(p => ({ ...p, vx: 0, vy: 0 }))
+    restLayoutRef.current.map(p => ({ ...p, vx: 0, vy: 0 }))
   );
-  const [positions, setPositions] = useState(INITIAL_POSITIONS);
+  const [positions, setPositions] = useState<Array<{ x: number; y: number }>>(
+    restLayoutRef.current.map(p => ({ x: p.x, y: p.y }))
+  );
   const rafRef = useRef<number | null>(null);
   const isActiveRef = useRef(false);
   const prevActiveRef = useRef(false);
@@ -48,10 +69,10 @@ export default function DiceSet({ dice, isRolling, isHolding }: DiceSetProps) {
     const isActive = isHolding || isRolling;
 
     if (isActive && !prevActiveRef.current) {
-      // Kick off: assign each dice a different random initial velocity
+      // Kick off: assign each dice a different random initial velocity (fast!)
       physicsRef.current = physicsRef.current.map((s, i) => {
         const angle = (Math.PI * 2 * i) / dice.length + (Math.random() - 0.5) * Math.PI;
-        const speed = 4 + Math.random() * 3;
+        const speed = 10 + Math.random() * 8; // fast initial kick
         return {
           x: s.x,
           y: s.y,
@@ -60,6 +81,11 @@ export default function DiceSet({ dice, isRolling, isHolding }: DiceSetProps) {
         };
       });
       frameCountRef.current = 0;
+    }
+
+    if (!isActive && prevActiveRef.current) {
+      // Pick a new random rest layout each time rolling stops
+      restLayoutRef.current = pickRestLayout();
     }
 
     prevActiveRef.current = isActive;
@@ -71,12 +97,13 @@ export default function DiceSet({ dice, isRolling, isHolding }: DiceSetProps) {
     }
 
     if (!isActive) {
-      // Smoothly return each dice to its initial resting position
+      const targetLayout = restLayoutRef.current;
+      // Smoothly return each dice to its chosen resting position
       const animateToRest = () => {
         let stillMoving = false;
         physicsRef.current = physicsRef.current.map((s, i) => {
-          const tx = INITIAL_POSITIONS[i].x;
-          const ty = INITIAL_POSITIONS[i].y;
+          const tx = targetLayout[i].x;
+          const ty = targetLayout[i].y;
           const dx = tx - s.x;
           const dy = ty - s.y;
           if (Math.abs(dx) > 0.3 || Math.abs(dy) > 0.3) {
@@ -88,8 +115,8 @@ export default function DiceSet({ dice, isRolling, isHolding }: DiceSetProps) {
         if (stillMoving) {
           rafRef.current = requestAnimationFrame(animateToRest);
         } else {
-          physicsRef.current = INITIAL_POSITIONS.map(p => ({ ...p, vx: 0, vy: 0 }));
-          setPositions([...INITIAL_POSITIONS]);
+          physicsRef.current = targetLayout.map(p => ({ ...p, vx: 0, vy: 0 }));
+          setPositions(targetLayout.map(p => ({ x: p.x, y: p.y })));
           rafRef.current = null;
         }
       };
@@ -106,10 +133,10 @@ export default function DiceSet({ dice, isRolling, isHolding }: DiceSetProps) {
       physicsRef.current = physicsRef.current.map((s, i) => {
         let { x, y, vx, vy } = s;
 
-        // Apply a random impulse periodically per dice (staggered frames)
+        // Apply a strong random impulse periodically per dice (staggered frames)
         if (frame % IMPULSE_INTERVAL === (i * IMPULSE_STAGGER) % IMPULSE_INTERVAL) {
           const angle = Math.random() * Math.PI * 2;
-          const force = 0.8 + Math.random() * 1.6;
+          const force = 2.5 + Math.random() * 4.5; // stronger impulse (was 0.8–2.4)
           vx += Math.cos(angle) * force;
           vy += Math.sin(angle) * force;
         }
@@ -127,8 +154,8 @@ export default function DiceSet({ dice, isRolling, isHolding }: DiceSetProps) {
           vx -= 2 * dot * nx;
           vy -= 2 * dot * ny;
           // Restitution: slight energy loss on bounce
-          vx *= 0.85;
-          vy *= 0.85;
+          vx *= 0.88;
+          vy *= 0.88;
           // Push back inside the wall
           x = nx * BOWL_RADIUS;
           y = ny * BOWL_RADIUS;
