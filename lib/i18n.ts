@@ -30,8 +30,8 @@ export const translations = {
       title: 'チンチロのルール',
       desc: 'サイコロ3つを振り、出た役で勝負！最大3回まで振れます。',
       roles: [
-        { name: 'ピンゾロ', dice: '1-1-1', desc: '最強！場に倍払わせる' },
-        { name: 'シゴロ', dice: '4-5-6', desc: '最高役・場が倍払い' },
+        { name: 'ピンゾロ', dice: '1-1-1', desc: '約1/216の確率' },
+        { name: 'シゴロ', dice: '4-5-6', desc: '' },
         { name: '6アラシ〜2アラシ', dice: 'N-N-N', desc: '3つ揃い。大きいほど強い' },
         { name: '目あり', dice: 'N-N-X', desc: '2つ揃い＋出目X (2〜6)' },
         { name: '豚', dice: '役なし', desc: '振り直し可（最大3回）' },
@@ -68,8 +68,8 @@ export const translations = {
       title: 'Chinchiro Rules',
       desc: 'Roll 3 dice to get a hand. Up to 3 rolls per turn.',
       roles: [
-        { name: 'Pinzoro', dice: '1-1-1', desc: 'Best hand! Dealer pays double' },
-        { name: 'Shigoro', dice: '4-5-6', desc: 'High hand – dealer pays double' },
+        { name: 'Pinzoro', dice: '1-1-1', desc: '~1/216 chance' },
+        { name: 'Shigoro', dice: '4-5-6', desc: '' },
         { name: '6 Storm – 2 Storm', dice: 'N-N-N', desc: 'Three of a kind. Higher is better' },
         { name: 'Me-ari', dice: 'N-N-X', desc: 'Pair + score X (2–6)' },
         { name: 'Pig', dice: 'No hand', desc: 'Re-roll allowed (max 3 times)' },
